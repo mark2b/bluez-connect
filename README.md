@@ -13,6 +13,7 @@ Create blueZ object (handles D-Bus connection)
 
 
 *Register signals callback
+
 blueZ.WaitForSignals(onBlueZSignal)
 
 ## Peripheral Role - (Server)
