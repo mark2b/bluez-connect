@@ -1,7 +1,6 @@
 package bluez
 
 import (
-	"agtinternational.com/bluez-connect/log"
 	"github.com/godbus/dbus"
 	"github.com/pkg/errors"
 )
@@ -13,7 +12,7 @@ type BlueZGattCharacteristic struct {
 }
 
 func (self *BlueZGattCharacteristic) ReadValue(options map[string]interface{}) (value []byte, e *dbus.Error) {
-	log.Log.Debug("characteristic.ReadValue for %s %v", self.gattCharacteristic.UUID, options)
+	//log.Log.Debug("characteristic.ReadValue for %s %v", self.gattCharacteristic.UUID, options)
 	if self.gattCharacteristic.OnReadFunc != nil {
 		if v, err := self.gattCharacteristic.OnReadFunc(); err == nil {
 			value = v
@@ -21,37 +20,37 @@ func (self *BlueZGattCharacteristic) ReadValue(options map[string]interface{}) (
 			e = MakeFailedError(err)
 		}
 	} else {
-		log.Log.Error("OnReadFunc is nil")
+		//log.Log.Error("OnReadFunc is nil")
 	}
 	return
 }
 
 func (self *BlueZGattCharacteristic) WriteValue(value []byte, options map[string]interface{}) (e *dbus.Error) {
-	log.Log.Debug("characteristic.WriteValue for %s %v", self.gattCharacteristic.UUID, options)
+	//log.Log.Debug("characteristic.WriteValue for %s %v", self.gattCharacteristic.UUID, options)
 	if self.gattCharacteristic.OnWriteFunc != nil {
 		if err := self.gattCharacteristic.OnWriteFunc(value); err == nil {
-			log.Log.Debug("characteristic wrote value for %s", self.gattCharacteristic.UUID)
+			//log.Log.Debug("characteristic wrote value for %s", self.gattCharacteristic.UUID)
 
 		} else {
 			e = MakeFailedError(err)
 		}
 	} else {
-		log.Log.Error("OnWriteFunc is nil")
+		//log.Log.Error("OnWriteFunc is nil")
 	}
 	return
 }
 
 func (self *BlueZGattCharacteristic) StartNotify() (e *dbus.Error) {
-	log.Log.Debug("characteristic.StartNotify for %s", self.gattCharacteristic.UUID)
+	//log.Log.Debug("characteristic.StartNotify for %s", self.gattCharacteristic.UUID)
 	return
 }
 func (self *BlueZGattCharacteristic) StopNotify() (e *dbus.Error) {
-	log.Log.Debug("characteristic.StopNotify for %s", self.gattCharacteristic.UUID)
+	//log.Log.Debug("characteristic.StopNotify for %s", self.gattCharacteristic.UUID)
 	return
 }
 
 func (self *BlueZGattCharacteristic) Confirm() (e *dbus.Error) {
-	log.Log.Debug("characteristic.Confirm for %s", self.gattCharacteristic.UUID)
+	//log.Log.Debug("characteristic.Confirm for %s", self.gattCharacteristic.UUID)
 	return
 }
 

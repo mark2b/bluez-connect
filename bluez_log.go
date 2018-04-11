@@ -1,4 +1,4 @@
-package log
+package bluez
 
 import (
 	"github.com/op/go-logging"

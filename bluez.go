@@ -1,7 +1,6 @@
 package bluez
 
 import (
-	"agtinternational.com/bluez-connect/log"
 	"fmt"
 	"github.com/godbus/dbus"
 	"github.com/godbus/dbus/introspect"
@@ -120,7 +119,7 @@ func (self *BlueZ) export(instance interface{}, path dbus.ObjectPath, iface stri
 }
 
 func (self *BlueZ) exportWithProperties(instance interface{}, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
-	log.Log.Info("Export Object %s into: %s", iface, path)
+	//log.Log.Info("Export Object %s into: %s", iface, path)
 	if err := self.Conn.Export(instance, path, iface); err == nil {
 		if err := self.Conn.Export(instance, path, "org.freedesktop.DBus.Properties"); err == nil {
 			if err := self.Conn.Export(introspect.Introspectable(ifaceIntrospectable), path,
@@ -138,7 +137,7 @@ func (self *BlueZ) exportWithProperties(instance interface{}, path dbus.ObjectPa
 }
 
 func (self *BlueZ) exportSingletonWithProperties(instance interface{}, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
-	log.Log.Info("Export Object %s into: %s", iface, path)
+	//log.Log.Info("Export Object %s into: %s", iface, path)
 	if reply, err := self.Conn.RequestName(iface,
 		dbus.NameFlagDoNotQueue&dbus.NameFlagReplaceExisting); err == nil {
 		if reply == dbus.RequestNameReplyPrimaryOwner {

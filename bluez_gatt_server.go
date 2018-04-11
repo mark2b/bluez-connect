@@ -5,8 +5,8 @@ import (
 	"github.com/godbus/dbus"
 )
 
-func (self *BlueZGattManager) AddApplication(path string, gattApplication *GattApplication) (e error) {
-	applicationPath := dbus.ObjectPath(path)
+func (self *BlueZGattManager) AddApplication(gattApplication *GattApplication) (e error) {
+	applicationPath := dbus.ObjectPath(gattApplication.Path)
 	if err := self.prepareBlueZGattApplication(applicationPath, gattApplication); err == nil {
 		options := make(map[string]dbus.Variant)
 		if call := self.Object.Call("org.bluez.GattManager1.RegisterApplication", 0, dbus.ObjectPath(applicationPath), options); call.Err == nil {

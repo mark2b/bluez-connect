@@ -1,6 +1,7 @@
 package bluez
 
 type GattApplication struct {
+	Path     string
 	Services map[string]*GattService
 }
 
@@ -32,8 +33,8 @@ func (self *GattService) RemoveCharacteristic(gattCharacteristic *GattCharacteri
 	delete(self.Characteristics, gattCharacteristic.UUID)
 }
 
-func NewGattApplication() (gattApplication *GattApplication) {
-	gattApplication = &GattApplication{}
+func NewGattApplication(path string) (gattApplication *GattApplication) {
+	gattApplication = &GattApplication{Path: path}
 	gattApplication.Services = make(map[string]*GattService, 0)
 	return
 }
