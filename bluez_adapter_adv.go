@@ -5,11 +5,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (self *BlueZAdapter) StartAdvertise(path string, localName string, serviceUUIDs []string) (e error) {
+func (self *BlueZAdapter) StartAdvertise(path string, localName string, serviceUUIDs []string, duration uint16, timeout uint16, onStopAdvertise func()) (e error) {
 	advertisementObjectPath := dbus.ObjectPath(path)
 
 	if obj := self.Conn.Object("org.bluez", self.Object.Path()); obj != nil {
-		advertisement := &LEAdvertisement1{serviceUUIDs: serviceUUIDs, duration: 15, timeout: 5}
+		advertisement := &LEAdvertisement1{serviceUUIDs: serviceUUIDs, duration: duration, timeout: timeout, onStopAdvertise: onStopAdvertise}
 		if len(localName) == 0 {
 			advertisement.includes = []string{"tx-power", "appearence", "local-name"}
 		} else {
@@ -60,8 +60,9 @@ type LEAdvertisement1 struct {
 	includes  []string
 	localName string
 	//Appearance       uint16
-	duration uint16
-	timeout  uint16
+	duration        uint16
+	timeout         uint16
+	onStopAdvertise func()
 }
 
 func (self *LEAdvertisement1) Type() (string, *dbus.Error) {
@@ -132,5 +133,6 @@ func (self *LEAdvertisement1) get(name string) (interface{}, *dbus.Error) {
 }
 
 func (self *LEAdvertisement1) Release() (dbusError *dbus.Error) {
+	go self.onStopAdvertise()
 	return
 }
