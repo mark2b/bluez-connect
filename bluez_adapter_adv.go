@@ -5,11 +5,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (self *BlueZAdapter) StartAdvertise(path string, localName string, serviceUUIDs []string, duration uint16, timeout uint16, onStopAdvertise func()) (e error) {
+func (self *BlueZAdapter) StartAdvertise(path string, localName string, serviceUUIDs []string) (e error) {
 	advertisementObjectPath := dbus.ObjectPath(path)
 
 	if obj := self.Conn.Object("org.bluez", self.Object.Path()); obj != nil {
-		advertisement := &LEAdvertisement1{serviceUUIDs: serviceUUIDs, duration: duration, timeout: timeout, onStopAdvertise: onStopAdvertise}
+		advertisement := &LEAdvertisement1{serviceUUIDs: serviceUUIDs}
 		if len(localName) == 0 {
 			advertisement.includes = []string{"tx-power", "appearence", "local-name"}
 		} else {
@@ -60,8 +60,6 @@ type LEAdvertisement1 struct {
 	includes  []string
 	localName string
 	//Appearance       uint16
-	duration        uint16
-	timeout         uint16
 	onStopAdvertise func()
 }
 
@@ -81,16 +79,8 @@ func (self *LEAdvertisement1) LocalName() (string, *dbus.Error) {
 	return self.localName, nil
 }
 
-func (self *LEAdvertisement1) Duration() (uint16, *dbus.Error) {
-	return self.duration, nil
-}
-
-func (self *LEAdvertisement1) Timeout() (uint16, *dbus.Error) {
-	return self.timeout, nil
-}
-
 func (self *LEAdvertisement1) GetAll(iface string) (properties map[string]dbus.Variant, e *dbus.Error) {
-	names := []string{"Type", "ServiceUUIDs", "Includes", "Duration", "Timeout", "LocalName"}
+	names := []string{"Type", "ServiceUUIDs", "Includes", "LocalName"}
 	props := make(map[string]dbus.Variant, 0)
 	for _, name := range names {
 		if value, err := self.get(name); err == nil {
@@ -123,10 +113,6 @@ func (self *LEAdvertisement1) get(name string) (interface{}, *dbus.Error) {
 		return self.Includes()
 	case "LocalName":
 		return self.LocalName()
-	case "Duration":
-		return self.Duration()
-	case "Timeout":
-		return self.Timeout()
 	default:
 		return nil, dbus.MakeFailedError(errors.Errorf("Property '%s' not found", name))
 	}

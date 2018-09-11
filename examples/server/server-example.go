@@ -16,7 +16,7 @@ func main() {
 		if blueZAdapter, err := blueZ.GetAdapter("hci0"); err == nil {
 			blueZ.WaitForSignals(onBlueZSignal)
 
-			if err := blueZAdapter.StartAdvertise(gattApplication.Path, "ECHO", []string{echoService.UUID}, 60, 120, onStopAdvertise); err == nil {
+			if err := blueZAdapter.StartAdvertise(gattApplication.Path, "ECHO", []string{echoService.UUID}); err == nil {
 				if blueZGattManager, err := blueZAdapter.GetGattManager(); err == nil {
 					if err := blueZGattManager.AddApplication(gattApplication); err == nil {
 						log.Println("Bluetooth server started")
@@ -34,9 +34,6 @@ func main() {
 	} else {
 		println("%s", err.Error())
 	}
-}
-
-func onStopAdvertise() {
 }
 
 func onBlueZSignal(signal *dbus.Signal) {
