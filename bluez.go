@@ -21,6 +21,7 @@ func NewBLueZ() (bluez *BlueZ, e error) {
 	}
 	return
 }
+
 func (self *BlueZ) Close() (e error) {
 	e = self.Conn.Close()
 	return
@@ -53,6 +54,32 @@ func (self *BlueZ) GetAdapters() (adapters []*BlueZAdapter, e error) {
 		}
 	} else {
 		e = err
+	}
+	return
+}
+
+func (self *BlueZ) RegisterAgent(agent Agent, path string, iface string) (e error) {
+	agentPath := dbus.ObjectPath(path)
+	if err := self.export(agent, agentPath, iface, Agent1Intro); err == nil {
+		agentManager := self.Conn.Object("org.bluez", dbus.ObjectPath("/org/bluez"))
+		if err := agentManager.Call("org.bluez.AgentManager1.RegisterAgent", 0, agentPath, agent.Capability()).Err; err == nil {
+
+		} else {
+			e = errors.WithMessage(err, "RegisterAgent failed.")
+		}
+	} else {
+		e = errors.WithMessage(err, "export failed.")
+	}
+	return
+}
+
+func (self *BlueZ) UnregisterAgent(path string) (e error) {
+	agentPath := dbus.ObjectPath(path)
+	agentManager := self.Conn.Object("org.bluez", dbus.ObjectPath("/org/bluez"))
+	if err := agentManager.Call("org.bluez.AgentManager1.UnregisterAgent", 0, agentPath).Err; err == nil {
+
+	} else {
+		e = errors.WithMessage(err, "UnregisterAgent failed.")
 	}
 	return
 }
@@ -119,7 +146,6 @@ func (self *BlueZ) export(instance interface{}, path dbus.ObjectPath, iface stri
 }
 
 func (self *BlueZ) exportWithProperties(instance interface{}, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
-	//log.Log.Info("Export Object %s into: %s", iface, path)
 	if err := self.Conn.Export(instance, path, iface); err == nil {
 		if err := self.Conn.Export(instance, path, "org.freedesktop.DBus.Properties"); err == nil {
 			if err := self.Conn.Export(introspect.Introspectable(ifaceIntrospectable), path,
@@ -137,7 +163,6 @@ func (self *BlueZ) exportWithProperties(instance interface{}, path dbus.ObjectPa
 }
 
 func (self *BlueZ) exportSingletonWithProperties(instance interface{}, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
-	//log.Log.Info("Export Object %s into: %s", iface, path)
 	if reply, err := self.Conn.RequestName(iface,
 		dbus.NameFlagDoNotQueue&dbus.NameFlagReplaceExisting); err == nil {
 		if reply == dbus.RequestNameReplyPrimaryOwner {

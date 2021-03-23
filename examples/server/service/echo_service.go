@@ -1,7 +1,7 @@
 package service
 
 import (
-	"bluez-connect"
+	"github.com/mark2b/bluez-connect"
 	"log"
 )
 

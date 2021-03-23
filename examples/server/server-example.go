@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/godbus/dbus"
-	bluez "bluez-connect"
-	"bluez-connect/examples/server/service"
-	"log"
+	bluez "github.com/mark2b/bluez-connect"
+	"github.com/mark2b/bluez-connect/examples/server/agent"
+	"github.com/mark2b/bluez-connect/examples/server/service"
 )
 
 func main() {
@@ -19,17 +19,23 @@ func main() {
 			if err := blueZAdapter.StartAdvertise(gattApplication.Path, "ECHO", []string{echoService.UUID}); err == nil {
 				if blueZGattManager, err := blueZAdapter.GetGattManager(); err == nil {
 					if err := blueZGattManager.AddApplication(gattApplication); err == nil {
-						log.Println("Bluetooth server started")
-						select {}
+						if err := blueZ.RegisterAgent(agent.NewDefaultAgent(), "/example/server/agent", "com.white.connect"); err == nil {
+							println("Bluetooth server started")
+							select {}
+						} else {
+							println("RegisterAgent failed", err.Error())
+						}
+					} else {
+						println("AddApplication failed", err.Error())
 					}
 				} else {
-					println("%s", err.Error())
+					println("GetGattManager failed", err.Error())
 				}
 			} else {
-				println("%s", err.Error())
+				println("StartAdvertise failed", err.Error())
 			}
 		} else {
-			println("%s", err.Error())
+			println("GetAdapter failed", err.Error())
 		}
 	} else {
 		println("%s", err.Error())

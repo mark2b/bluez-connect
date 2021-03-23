@@ -71,7 +71,7 @@ const (
       <property name="ServiceUUIDs" type="as" access="read"  />
       <property name="Includes" type="as" access="read"  />
       <property name="LocalName" type="s" access="read"  />
-      <property name="Diration" type="u" access="read"  />
+      <property name="Duration" type="u" access="read"  />
       <property name="Timeout" type="u" access="read"  />
    </interface>
    <interface name="org.freedesktop.DBus.Properties">
@@ -96,4 +96,40 @@ const (
       </signal>
    </interface>
 </node>`
+	Agent1Interface = "org.bluez.Agent1"
+	Agent1Intro     = `
+<node>
+    <interface name="org.bluez.Agent1">
+        <method name="Release" />
+        <method name="RequestPinCode">
+            <arg direction="in" type="o" />
+            <arg direction="out" type="s" />
+        </method>
+        <method name="DisplayPinCode">
+            <arg direction="in" type="o" />
+            <arg direction="in" type="s" />
+        </method>
+        <method name="RequestPasskey">
+            <arg direction="in" type="o" />
+            <arg direction="out" type="u" />
+        </method>
+        <method name="DisplayPasskey">
+            <arg direction="in" type="o" />
+            <arg direction="in" type="u" />
+            <arg direction="in" type="q" />
+        </method>
+        <method name="RequestConfirmation">
+            <arg direction="in" type="o" />
+            <arg direction="in" type="u" />
+        </method>
+        <method name="RequestAuthorization">
+            <arg direction="in" type="o" />
+        </method>
+        <method name="AuthorizeService">
+            <arg direction="in" type="o" />
+            <arg direction="in" type="s" />
+        </method>
+        <method name="Cancel" />
+    </interface>` + DBusPropertiesIntro + introspect.IntrospectDataString + `</node>`
+
 )
