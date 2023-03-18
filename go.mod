@@ -1,4 +1,4 @@
-module github.com/mark2b/bluez-connect
+module github.com/mark2b/bluez-connect/v2
 
 go 1.17
 
