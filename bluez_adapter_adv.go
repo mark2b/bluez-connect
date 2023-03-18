@@ -1,11 +1,11 @@
 package bluez
 
 import (
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/pkg/errors"
 )
 
-func (self *BlueZAdapter) StartAdvertise(path string, localName string, serviceUUIDs []string) (e error) {
+func (self *BlueZAdapter) StartAdvertise(name string, path string, localName string, serviceUUIDs []string) (e error) {
 	advertisementObjectPath := dbus.ObjectPath(path)
 
 	if obj := self.Conn.Object("org.bluez", self.Object.Path()); obj != nil {
@@ -22,7 +22,7 @@ func (self *BlueZAdapter) StartAdvertise(path string, localName string, serviceU
 		}
 		self.advertisements[advertisementObjectPath] = advertisement
 
-		if err := self.bluez.exportSingletonWithProperties(advertisement, advertisementObjectPath, LEAdvertisement1Interface, LEAdvertisement1Intro); err == nil {
+		if err := self.bluez.exportSingletonWithProperties(advertisement, name, advertisementObjectPath, LEAdvertisement1Interface, LEAdvertisement1Intro); err == nil {
 			options := make(map[string]dbus.Variant)
 			if call := obj.Call("org.bluez.LEAdvertisingManager1.RegisterAdvertisement", 0, advertisementObjectPath, options); call.Err == nil {
 

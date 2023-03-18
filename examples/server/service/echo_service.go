@@ -18,7 +18,7 @@ func NewService() *bluez.GattService {
 	thisService.gattService.AddCharacteristic(thisService.echoCharacteristic)
 
 	thisService.echoCharacteristic.OnWriteFunc = func(value []byte) (e error) {
-		log.Printf("Write data with size: %d\f", len(value))
+		log.Printf("Write data with size: %d\n", len(value))
 		thisService.echoData = value
 		return nil
 	}
@@ -34,7 +34,7 @@ func NewService() *bluez.GattService {
 type echoService struct {
 	gattService        *bluez.GattService
 	echoCharacteristic *bluez.GattCharacteristic
-	echoData []byte
+	echoData           []byte
 }
 
 var thisService = new(echoService)

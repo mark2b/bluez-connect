@@ -1,7 +1,7 @@
 package main
 
 import (
-	dbus "github.com/godbus/dbus"
+	dbus "github.com/godbus/dbus/v5"
 	"github.com/mark2b/bluez-connect"
 	"log"
 )

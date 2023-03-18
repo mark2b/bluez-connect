@@ -2,10 +2,12 @@ package bluez
 
 import (
 	"fmt"
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
+	"github.com/mark2b/bluez-connect/internal/log"
 )
 
 func (self *BlueZCharacteristic) ReadValue() (data []byte, e error) {
+	log.Log.Debugf("ReadValue %s", self.Object.Path())
 	options := make(map[string]dbus.Variant)
 	if call := self.Object.Call("org.bluez.GattCharacteristic1.ReadValue", 0, options); call.Err == nil {
 		if err := call.Store(&data); err == nil {
@@ -19,6 +21,7 @@ func (self *BlueZCharacteristic) ReadValue() (data []byte, e error) {
 }
 
 func (self *BlueZCharacteristic) WriteValue(value []byte) (e error) {
+	log.Log.Debugf("WriteValue %s", self.Object.Path())
 	options := make(map[string]dbus.Variant)
 	if call := self.Object.Call("org.bluez.GattCharacteristic1.WriteValue", 0, value, options); call.Err == nil {
 	} else {
@@ -28,6 +31,7 @@ func (self *BlueZCharacteristic) WriteValue(value []byte) (e error) {
 }
 
 func (self *BlueZCharacteristic) StartNotify() (e error) {
+	log.Log.Debugf("StartNotify %s", self.Object.Path())
 	if call := self.Object.Call("org.bluez.GattCharacteristic1.StartNotify", 0); call.Err == nil {
 	} else {
 		e = call.Err
@@ -36,6 +40,7 @@ func (self *BlueZCharacteristic) StartNotify() (e error) {
 }
 
 func (self *BlueZCharacteristic) StopNotify() (e error) {
+	log.Log.Debugf("StopNotify %s", self.Object.Path())
 	if call := self.Object.Call("org.bluez.GattCharacteristic1.StopNotify", 0); call.Err == nil {
 	} else {
 		e = call.Err

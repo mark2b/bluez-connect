@@ -1,57 +1,58 @@
 package agent
 
 import (
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/mark2b/bluez-connect"
+	"github.com/mark2b/bluez-connect/internal/log"
 )
 
 func (self *DefaultAgent) Release() (e *dbus.Error) {
-	println("Release")
+	log.Log.Debug("Release")
 	return
 }
 
 func (self *DefaultAgent) RequestPinCode(device dbus.Object) (pincode string, e *dbus.Error) {
-	println("RequestPinCode")
+	log.Log.Debug("RequestPinCode")
 	return
 }
 
 func (self *DefaultAgent) DisplayPinCode(device dbus.Object, pincode string) (e *dbus.Error) {
-	println("DisplayPinCode")
+	log.Log.Debug("DisplayPinCode")
 	return
 }
 
 func (self *DefaultAgent) RequestPasskey(device dbus.Object) (passkey uint32, e *dbus.Error) {
-	println("RequestPasskey")
+	log.Log.Debug("RequestPasskey")
 	return
 }
 
 func (self *DefaultAgent) DisplayPasskey(device dbus.Object, passkey uint32, entered int16) (e *dbus.Error) {
-	println("DisplayPasskey")
+	log.Log.Debug("DisplayPasskey")
 	return
 }
 
 func (self *DefaultAgent) RequestConfirmation(device dbus.Object, passkey uint32) (e *dbus.Error) {
-	println("RequestConfirmation")
+	log.Log.Debug("RequestConfirmation")
 	return
 }
 
 func (self *DefaultAgent) RequestAuthorization(device dbus.Object) (e *dbus.Error) {
-	println("RequestAuthorization")
+	log.Log.Debug("RequestAuthorization")
 	return
 }
 
 func (self *DefaultAgent) AuthorizeService(device dbus.Object, uuid string) (e *dbus.Error) {
-	println("AuthorizeService")
+	log.Log.Debug("AuthorizeService")
 	return
 }
 
 func (self *DefaultAgent) Cancel() (e *dbus.Error) {
-	println("Cancel")
+	log.Log.Debug("Cancel")
 	return
 }
 
-func (self *DefaultAgent) Capability() (bluez.AgentCapability) {
-	println("Cancel")
+func (self *DefaultAgent) Capability() bluez.AgentCapability {
+	log.Log.Debug("Cancel")
 	return bluez.NoInputNoOutput
 }
 

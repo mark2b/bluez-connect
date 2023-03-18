@@ -1,6 +1,7 @@
 package bluez
 
 type GattApplication struct {
+	Name     string
 	Path     string
 	Services map[string]*GattService
 }
@@ -11,10 +12,12 @@ type GattService struct {
 }
 
 type GattCharacteristic struct {
-	UUID        string
-	Flags       []string
-	OnReadFunc  func() ([]byte, error)
-	OnWriteFunc func([]byte) error
+	UUID             string
+	Flags            []string
+	OnReadFunc       func() ([]byte, error)
+	OnWriteFunc      func([]byte) ([]byte, error)
+	OnWriteAsyncFunc func([]byte) ([]byte, error)
+	OnReadValueFunc  func([]byte) ([]byte, error)
 }
 
 func (self *GattApplication) AddService(gattService *GattService) {
@@ -33,8 +36,8 @@ func (self *GattService) RemoveCharacteristic(gattCharacteristic *GattCharacteri
 	delete(self.Characteristics, gattCharacteristic.UUID)
 }
 
-func NewGattApplication(path string) (gattApplication *GattApplication) {
-	gattApplication = &GattApplication{Path: path}
+func NewGattApplication(name string, path string) (gattApplication *GattApplication) {
+	gattApplication = &GattApplication{Name: name, Path: path}
 	gattApplication.Services = make(map[string]*GattService, 0)
 	return
 }

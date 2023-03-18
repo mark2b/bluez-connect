@@ -1,11 +1,13 @@
 package bluez
 
-import "github.com/godbus/dbus/introspect"
+import "github.com/godbus/dbus/v5/introspect"
 
 const (
 	DBusIntrospectableInterface = "org.freedesktop.DBus.Introspectable"
-	DBusPropertiesInterface     = "org.freedesktop.DBus.Properties"
-	DBusPropertiesIntro         = `
+	AdapterInterface            = "org.bluez.Adapter1"
+
+	DBusPropertiesInterface = "org.freedesktop.DBus.Properties"
+	DBusPropertiesIntro     = `
    <interface name="org.freedesktop.DBus.Properties">
       <method name="Get">
          <arg name="interface" type="s" direction="in" />
@@ -39,6 +41,10 @@ const (
 	GattCharacteristic1Intro     = `<node>
 <interface name="org.bluez.GattCharacteristic1">
       <property name="UUID" type="s" access="read" />
+      <property name="Service" type="o" access="read" />
+      <property name="Value" type="ay" access="read" />
+      <property name="Notifying" type="b" access="read" />
+      <property name="Flags" type="as" access="read" />
 </interface>` + DBusPropertiesIntro + introspect.IntrospectDataString + `</node>`
 
 	ObjectManagerInterface = "org.freedesktop.DBus.ObjectManager"
@@ -132,4 +138,29 @@ const (
         <method name="Cancel" />
     </interface>` + DBusPropertiesIntro + introspect.IntrospectDataString + `</node>`
 
+	Profile1Interface = "org.bluez.Profile1"
+	Profile1Intro     = `
+<node>
+	<interface name='org.bluez.Profile1'>
+		<method name='Release' />
+		<method name='NewConnection'>
+			<arg type='o' name='device' direction='in' />
+			<arg type='h' name='fd' direction='in' />
+			<arg type='a{sv}' name='fd_properties' direction='in' />
+		</method>
+		<method name='RequestDisconnection'>
+			<arg type='o' name='device' direction='in' />
+		</method>
+    </interface>` +
+		DBusPropertiesIntro + introspect.IntrospectDataString + `
+</node>`
+
+	GattService1PropUUID    = "UUID"
+	GattService1PropPrimary = "Primary"
+
+	GattCharacteristic1PropUUID      = "UUID"
+	GattCharacteristic1PropService   = "Service"
+	GattCharacteristic1PropValue     = "Value"
+	GattCharacteristic1PropNotifying = "Notifying"
+	GattCharacteristic1PropFlags     = "Flags"
 )

@@ -2,8 +2,9 @@ package bluez
 
 import (
 	"fmt"
-	"github.com/godbus/dbus"
-	"github.com/godbus/dbus/introspect"
+	"github.com/godbus/dbus/v5"
+	"github.com/godbus/dbus/v5/introspect"
+	"github.com/mark2b/bluez-connect/internal/log"
 	"github.com/pkg/errors"
 	"strings"
 )
@@ -47,8 +48,8 @@ func (self *BlueZ) GetAdapter(hostId string) (a *BlueZAdapter, e error) {
 func (self *BlueZ) GetAdapters() (adapters []*BlueZAdapter, e error) {
 	if managedObjects, err := self.getManagedObjects(); err == nil {
 		for path, o := range managedObjects {
-			if data, exists := o["org.bluez.Adapter1"]; exists {
-				adapter := &BlueZAdapter{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, bluez: self, data: data}
+			if adapterObject, exists := o["org.bluez.Adapter1"]; exists {
+				adapter := &BlueZAdapter{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, bluez: self, adapterObject: adapterObject}
 				adapters = append(adapters, adapter)
 			}
 		}
@@ -58,9 +59,9 @@ func (self *BlueZ) GetAdapters() (adapters []*BlueZAdapter, e error) {
 	return
 }
 
-func (self *BlueZ) RegisterAgent(agent Agent, path string, iface string) (e error) {
+func (self *BlueZ) RegisterAgent(agent Agent, name string, path string, iface string) (e error) {
 	agentPath := dbus.ObjectPath(path)
-	if err := self.export(agent, agentPath, iface, Agent1Intro); err == nil {
+	if err := self.export(agent, name, agentPath, iface, Agent1Intro); err == nil {
 		agentManager := self.Conn.Object("org.bluez", dbus.ObjectPath("/org/bluez"))
 		if err := agentManager.Call("org.bluez.AgentManager1.RegisterAgent", 0, agentPath, agent.Capability()).Err; err == nil {
 
@@ -123,13 +124,12 @@ func (self *BlueZ) getManagedObjects() (managedObjects map[dbus.ObjectPath]map[s
 	return
 }
 
-func (self *BlueZ) export(instance interface{}, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
-	if reply, err := self.Conn.RequestName(iface,
-		dbus.NameFlagDoNotQueue&dbus.NameFlagReplaceExisting); err == nil {
+func (self *BlueZ) export(instance interface{}, name string, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
+	if reply, err := self.Conn.RequestName(name, dbus.NameFlagDoNotQueue&dbus.NameFlagReplaceExisting); err == nil {
 		if reply == dbus.RequestNameReplyPrimaryOwner {
 			if err := self.Conn.Export(instance, path, iface); err == nil {
 				if err := self.Conn.Export(introspect.Introspectable(ifaceIntrospectable), path,
-					"org.freedesktop.DBus.Introspectable"); err == nil {
+					DBusIntrospectableInterface); err == nil {
 				} else {
 					e = err
 				}
@@ -146,10 +146,11 @@ func (self *BlueZ) export(instance interface{}, path dbus.ObjectPath, iface stri
 }
 
 func (self *BlueZ) exportWithProperties(instance interface{}, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
+	log.Log.Debugf("Exporting %s on %s", path, self.Object.Destination())
 	if err := self.Conn.Export(instance, path, iface); err == nil {
-		if err := self.Conn.Export(instance, path, "org.freedesktop.DBus.Properties"); err == nil {
+		if err := self.Conn.Export(instance, path, DBusPropertiesInterface); err == nil {
 			if err := self.Conn.Export(introspect.Introspectable(ifaceIntrospectable), path,
-				"org.freedesktop.DBus.Introspectable"); err == nil {
+				DBusIntrospectableInterface); err == nil {
 			} else {
 				e = err
 			}
@@ -162,14 +163,13 @@ func (self *BlueZ) exportWithProperties(instance interface{}, path dbus.ObjectPa
 	return
 }
 
-func (self *BlueZ) exportSingletonWithProperties(instance interface{}, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
-	if reply, err := self.Conn.RequestName(iface,
-		dbus.NameFlagDoNotQueue&dbus.NameFlagReplaceExisting); err == nil {
+func (self *BlueZ) exportSingletonWithProperties(instance interface{}, name string, path dbus.ObjectPath, iface string, ifaceIntrospectable string) (e error) {
+	if reply, err := self.Conn.RequestName(name, dbus.NameFlagDoNotQueue&dbus.NameFlagReplaceExisting); err == nil {
 		if reply == dbus.RequestNameReplyPrimaryOwner {
 			if err := self.Conn.Export(instance, path, iface); err == nil {
-				if err := self.Conn.Export(instance, path, "org.freedesktop.DBus.Properties"); err == nil {
+				if err := self.Conn.Export(instance, path, DBusPropertiesInterface); err == nil {
 					if err := self.Conn.Export(introspect.Introspectable(ifaceIntrospectable), path,
-						"org.freedesktop.DBus.Introspectable"); err == nil {
+						DBusIntrospectableInterface); err == nil {
 					} else {
 						e = err
 					}
@@ -231,6 +231,10 @@ func MakeFailedError(err error) *dbus.Error {
 	}
 }
 
-func HasPrefix(path1 dbus.ObjectPath, path2 dbus.ObjectPath) bool {
+func hasPrefix(path1 dbus.ObjectPath, path2 dbus.ObjectPath) bool {
 	return strings.HasPrefix(strings.ToLower(string(path1)), strings.ToLower(string(path2)))
+}
+
+func SetLogOutputMode(debug bool, verbose bool, systemd bool) {
+	log.SetOutputMode(debug, verbose, systemd)
 }

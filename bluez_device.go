@@ -2,7 +2,7 @@ package bluez
 
 import (
 	"fmt"
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/pkg/errors"
 	"strings"
 )
@@ -12,12 +12,12 @@ func (self *BlueZDevice) GetCharacteristic(uuid string, serviceUuid string) (fou
 	serviceUuid = strings.ToLower(serviceUuid)
 	if managedObjects, err := self.adapter.bluez.getManagedObjects(); err == nil {
 		for path, o := range managedObjects {
-			if HasPrefix(path, self.Object.Path()) {
+			if hasPrefix(path, self.Object.Path()) {
 				if data, exists := o["org.bluez.GattService1"]; exists {
 					if strings.ToLower(data["UUID"].Value().(string)) == serviceUuid {
 						foundService = &BlueZService{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, device: self, data: data}
 						for path, o := range managedObjects {
-							if HasPrefix(path, self.Object.Path()) {
+							if hasPrefix(path, self.Object.Path()) {
 								if data, exists := o["org.bluez.GattCharacteristic1"]; exists {
 									if strings.ToLower(data["UUID"].Value().(string)) == uuid {
 										foundCharacteristic = &BlueZCharacteristic{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, service: foundService, data: data}
@@ -44,7 +44,7 @@ func (self *BlueZDevice) GetCharacteristic(uuid string, serviceUuid string) (fou
 func (self *BlueZDevice) GetServices() (services []BlueZService, e error) {
 	if managedObjects, err := self.adapter.bluez.getManagedObjects(); err == nil {
 		for path, o := range managedObjects {
-			if HasPrefix(path, self.Object.Path()) {
+			if hasPrefix(path, self.Object.Path()) {
 				if data, exists := o["org.bluez.GattService1"]; exists {
 					service := BlueZService{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, device: self, data: data}
 					services = append(services, service)
@@ -94,35 +94,35 @@ func (self *BlueZDevice) Disconnect() (e error) {
 }
 
 func (self *BlueZDevice) Name() (value string) {
-	if v, exists := self.data["Name"]; exists {
+	if v, exists := self.deviceObject["Name"]; exists {
 		value = v.Value().(string)
 	}
 	return
 }
 
 func (self *BlueZDevice) Connected() (value bool) {
-	if v, exists := self.data["Connected"]; exists {
+	if v, exists := self.deviceObject["Connected"]; exists {
 		value = v.Value().(bool)
 	}
 	return
 }
 
 func (self *BlueZDevice) ServicesResolved() (value bool) {
-	if v, exists := self.data["ServicesResolved"]; exists {
+	if v, exists := self.deviceObject["ServicesResolved"]; exists {
 		value = v.Value().(bool)
 	}
 	return
 }
 
 func (self *BlueZDevice) Address() (value string) {
-	if v, exists := self.data["Address"]; exists {
+	if v, exists := self.deviceObject["Address"]; exists {
 		value = v.Value().(string)
 	}
 	return
 }
 
 func (self *BlueZDevice) UUIDs() (value []string) {
-	if v, exists := self.data["UUIDs"]; exists {
+	if v, exists := self.deviceObject["UUIDs"]; exists {
 		value = v.Value().([]string)
 	}
 	return
@@ -130,7 +130,7 @@ func (self *BlueZDevice) UUIDs() (value []string) {
 
 func (self *BlueZDevice) Refresh() (e error) {
 	if managedObject, err := self.adapter.bluez.getManagedObject(self.Object.Path()); err == nil && len(managedObject) != 0 {
-		self.data = managedObject["org.bluez.Device1"]
+		self.deviceObject = managedObject["org.bluez.Device1"]
 	} else {
 		e = err
 	}
@@ -138,7 +138,7 @@ func (self *BlueZDevice) Refresh() (e error) {
 }
 
 func (self *BlueZDevice) ToDisplayString() (text string) {
-	for k, v := range self.data {
+	for k, v := range self.deviceObject {
 		text += fmt.Sprintf("\t%v %v\n", k, v)
 	}
 	return
@@ -146,6 +146,6 @@ func (self *BlueZDevice) ToDisplayString() (text string) {
 
 type BlueZDevice struct {
 	BlueZObject
-	adapter *BlueZAdapter
-	data    map[string]dbus.Variant
+	adapter      *BlueZAdapter
+	deviceObject map[string]dbus.Variant
 }

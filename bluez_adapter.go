@@ -1,7 +1,7 @@
 package bluez
 
 import (
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/pkg/errors"
 	"strings"
 )
@@ -9,9 +9,9 @@ import (
 func (self *BlueZAdapter) GetDevices() (devices []*BlueZDevice, e error) {
 	if managedObjects, err := self.bluez.getManagedObjects(); err == nil {
 		for path, o := range managedObjects {
-			if HasPrefix(path, self.Object.Path()) {
-				if data, exists := o["org.bluez.Device1"]; exists {
-					device := &BlueZDevice{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, adapter: self, data: data}
+			if hasPrefix(path, self.Object.Path()) {
+				if deviceObject, exists := o["org.bluez.Device1"]; exists {
+					device := &BlueZDevice{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, adapter: self, deviceObject: deviceObject}
 					devices = append(devices, device)
 				}
 			}
@@ -25,10 +25,11 @@ func (self *BlueZAdapter) GetDevices() (devices []*BlueZDevice, e error) {
 func (self *BlueZAdapter) GetGattManager() (gattManager *BlueZGattManager, e error) {
 	if managedObjects, err := self.bluez.getManagedObjects(); err == nil {
 		for path, o := range managedObjects {
-			if HasPrefix(path, self.Object.Path()) {
-				if data, exists := o["org.bluez.GattManager1"]; exists {
-					blueZGattManager = &BlueZGattManager{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, adapter: self, data: data}
+			if hasPrefix(path, self.Object.Path()) {
+				if gattManagerObject, exists := o["org.bluez.GattManager1"]; exists {
+					blueZGattManager = &BlueZGattManager{BlueZObject: BlueZObject{self.Conn, self.Conn.Object("org.bluez", path)}, adapter: self, gattManagerObject: gattManagerObject}
 					gattManager = blueZGattManager
+
 					return
 				}
 			}
@@ -84,6 +85,6 @@ func (self *BlueZAdapter) FindPeripheral(nameOrAddress string) (foundDevice *Blu
 type BlueZAdapter struct {
 	BlueZObject
 	bluez          *BlueZ
-	data           map[string]dbus.Variant
+	adapterObject  map[string]dbus.Variant
 	advertisements map[dbus.ObjectPath]*LEAdvertisement1
 }
