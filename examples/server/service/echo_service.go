@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/mark2b/bluez-connect"
+	"github.com/mark2b/bluez-connect/v2"
 	"log"
 )
 
@@ -17,10 +17,10 @@ func NewService() *bluez.GattService {
 	thisService.echoCharacteristic = bluez.NewGattCharacteristic(GattEchoCharacteristicUUID, []string{"read", "write"})
 	thisService.gattService.AddCharacteristic(thisService.echoCharacteristic)
 
-	thisService.echoCharacteristic.OnWriteFunc = func(value []byte) (e error) {
-		log.Printf("Write data with size: %d\n", len(value))
-		thisService.echoData = value
-		return nil
+	thisService.echoCharacteristic.OnWriteFunc = func(input []byte) (output []byte, e error) {
+		log.Printf("Write data with size: %d\n", len(input))
+		output = input
+		return
 	}
 	thisService.echoCharacteristic.OnReadFunc = func() (value []byte, e error) {
 		return thisService.echoData, nil

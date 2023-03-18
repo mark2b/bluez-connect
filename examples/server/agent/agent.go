@@ -2,8 +2,8 @@ package agent
 
 import (
 	"github.com/godbus/dbus/v5"
-	"github.com/mark2b/bluez-connect"
-	"github.com/mark2b/bluez-connect/internal/log"
+	"github.com/mark2b/bluez-connect/v2"
+	"github.com/mark2b/bluez-connect/v2/internal/log"
 )
 
 func (self *DefaultAgent) Release() (e *dbus.Error) {

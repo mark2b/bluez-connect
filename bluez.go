@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/godbus/dbus/v5"
 	"github.com/godbus/dbus/v5/introspect"
-	"github.com/mark2b/bluez-connect/internal/log"
+	"github.com/mark2b/bluez-connect/v2/internal/log"
 	"github.com/pkg/errors"
 	"strings"
 )

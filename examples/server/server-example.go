@@ -2,24 +2,24 @@ package main
 
 import (
 	"github.com/godbus/dbus/v5"
-	bluez "github.com/mark2b/bluez-connect"
-	"github.com/mark2b/bluez-connect/examples/server/agent"
-	"github.com/mark2b/bluez-connect/examples/server/service"
+	bluez "github.com/mark2b/bluez-connect/v2"
+	"github.com/mark2b/bluez-connect/v2/examples/server/agent"
+	"github.com/mark2b/bluez-connect/v2/examples/server/service"
 )
 
 func main() {
 	var echoService = service.NewService()
-	var gattApplication = bluez.NewGattApplication("/example/server")
+	var gattApplication = bluez.NewGattApplication("example.server", "/example/server")
 	gattApplication.AddService(echoService)
 
 	if blueZ, err := bluez.NewBLueZ(); err == nil {
 		if blueZAdapter, err := blueZ.GetAdapter("hci0"); err == nil {
 			blueZ.WaitForSignals(onBlueZSignal)
 
-			if err := blueZAdapter.StartAdvertise(gattApplication.Path, "ECHO", []string{echoService.UUID}); err == nil {
+			if err := blueZAdapter.StartAdvertise("example.server", gattApplication.Path, "ECHO", []string{echoService.UUID}); err == nil {
 				if blueZGattManager, err := blueZAdapter.GetGattManager(); err == nil {
 					if err := blueZGattManager.AddApplication(gattApplication); err == nil {
-						if err := blueZ.RegisterAgent(agent.NewDefaultAgent(), "/example/server/agent", "com.white.connect"); err == nil {
+						if err := blueZ.RegisterAgent(agent.NewDefaultAgent(), "example.server", "/example/server/agent", "com.white.connect"); err == nil {
 							println("Bluetooth server started")
 							select {}
 						} else {
